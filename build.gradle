@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+group 'rip.deadcode'
+version '0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(
+            'io.ratpack:ratpack-core:1.5.4',
+            'io.ratpack:ratpack-guice:1.5.4',
+
+            'com.google.guava:guava:24.0-jre',
+            'com.google.code.findbugs:jsr305:3.0.2',
+            'org.slf4j:slf4j-api:1.7.25',
+    )
+    testCompile(
+            'io.ratpack:ratpack-test:1.5.4',
+
+            'org.junit.jupiter:junit-jupiter-api:5.1.0',
+            'com.google.truth:truth:0.39',
+            'com.google.truth.extensions:truth-java8-extension:0.39',
+            'org.mockito:mockito-core:2.18.0',
+
+            'org.slf4j:slf4j-api:1.7.25',
+            'org.slf4j:jul-to-slf4j:1.7.25', // Guava uses java.util.logging
+            'ch.qos.logback:logback-classic:1.2.3'
+    )
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+bintray {
+    user = project.hasProperty('BINTRAY_USER') ? BINTRAY_USER : ''
+    key = project.hasProperty('BINTRAY_KEY') ? BINTRAY_KEY : ''
+    pkg {
+        repo = 'test'
+        name = 'asashimo'
+        licenses = ['MIT']
+        vcsUrl = 'https://bitbucket.org/minebreaker_tf/ratpack-basicauth.git'
+    }
+    publications = ['bintrayPublication']
+}
+
+publishing {
+    publications {
+        bintrayPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
