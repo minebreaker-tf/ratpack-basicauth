@@ -26,9 +26,8 @@ repositories {
 dependencies {
     compile(
             'io.ratpack:ratpack-core:1.5.4',
-            'io.ratpack:ratpack-guice:1.5.4',
 
-            'com.google.guava:guava:24.0-jre',
+            'com.google.guava:guava:24.1-jre',
             'com.google.code.findbugs:jsr305:3.0.2',
             'org.slf4j:slf4j-api:1.7.25',
     )
