@@ -80,7 +80,7 @@ bintray {
         repo = 'test'
         name = 'asashimo'
         licenses = ['MIT']
-        vcsUrl = 'https://bitbucket.org/minebreaker_tf/ratpack-basicauth.git'
+        vcsUrl = 'https://github.com/minebreaker-tf/ratpack-basicauth.git'
     }
     publications = ['bintrayPublication']
 }
