@@ -36,17 +36,19 @@ public final class BasicAuthHandler implements Handler {
     @Override
     public void handle( Context ctx ) {
 
-        ctx.getResponse().getHeaders().add( HttpHeaders.WWW_AUTHENTICATE, "Basic realm=" + realm );
+        ctx.getResponse().getHeaders().add( HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"" + realm + "\"" );
 
         Optional<String> authorizationOptional = ctx.header( HttpHeaders.AUTHORIZATION );
         if ( authorizationOptional.isPresent() ) {
 
             String authorization = authorizationOptional.get();
             List<String> parts = authorizationSplitter.splitToList( authorization );
+            checkState( parts.size() == 2, "Invalid Authorization header value: %s", authorization );
             checkState( parts.get( 0 ).equals( "Basic" ), "Not Basic authentication." );
 
             String decoded = new String( BaseEncoding.base64().decode( parts.get( 1 ) ), StandardCharsets.US_ASCII );
             List<String> userPassword = userPasswordSplitter.splitToList( decoded );
+            checkState( userPassword.size() == 2, "Invalid token: %s", userPassword );
             String user = userPassword.get( 0 );
             String password = userPassword.get( 1 );
 
@@ -55,17 +57,12 @@ public final class BasicAuthHandler implements Handler {
                     ctx.next();
                 } else {
                     logger.debug( "Wrong user or password. User: {}", user );
-                    renderFailure( ctx );
+                    ctx.clientError( 401 );
                 }
             } );
 
         } else {
-            renderFailure( ctx );
+            ctx.clientError( 401 );
         }
-    }
-
-    private void renderFailure( Context ctx ) {
-        ctx.getResponse().status( 401 );
-        ctx.render( "401 Authorization Required" );
     }
 }
