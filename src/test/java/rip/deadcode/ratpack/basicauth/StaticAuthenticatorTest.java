@@ -29,7 +29,17 @@ class StaticAuthenticatorTest {
     }
 
     @Test
-    void testFailure() throws Exception {
+    void testWrongUser() throws Exception {
+
+        ExecResult result = ExecHarness.yieldSingle( execution -> {
+            return new StaticAuthenticator( "user", "password" ).authenticate( "wrong user", "password" );
+        } );
+
+        assertThat( result.getValue() ).isEqualTo( Boolean.FALSE );
+    }
+
+    @Test
+    void testWrongPassword() throws Exception {
 
         ExecResult result = ExecHarness.yieldSingle( execution -> {
             return new StaticAuthenticator( "user", "password" ).authenticate( "user", "wrong password" );
@@ -37,5 +47,4 @@ class StaticAuthenticatorTest {
 
         assertThat( result.getValue() ).isEqualTo( Boolean.FALSE );
     }
-
 }
