@@ -10,7 +10,7 @@ public final class Sample {
     public static void main( String[] args ) throws Exception {
 
         Action<Chain> handlers = chain -> {
-            chain.all( new BasicAuthHandler( "WallyWorld", "user", "password" ) );
+            chain.all( new BasicAuthHandler( new StaticAuthenticator( "user", "password" ) ) );
             chain.all( ctx -> ctx.render( "OK" ) );
         };
 

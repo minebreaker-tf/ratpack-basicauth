@@ -1,5 +1,6 @@
 package rip.deadcode.ratpack.basicauth;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
 import com.google.common.net.HttpHeaders;
 import org.slf4j.Logger;
@@ -8,21 +9,28 @@ import ratpack.handling.Context;
 import ratpack.handling.Handler;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public final class BasicAuthHandler implements Handler {
 
-    // TODO read spec to verify logic
-
     private static final Logger logger = LoggerFactory.getLogger( BasicAuthHandler.class );
 
-    private final String realm;
-    private final String token;
+    private static final Splitter authorizationSplitter = Splitter.on( " " ).omitEmptyStrings().limit( 2 );
+    private static final Splitter userPasswordSplitter = Splitter.on( ":" ).limit( 2 );
 
-    // TODO refactor using map (or other flexible method) for user-password pair
-    public BasicAuthHandler( String realm, String user, String password ) {
+    private final String realm;
+    private final BasicAuthAuthenticator authenticator;
+
+    public BasicAuthHandler( BasicAuthAuthenticator authenticator ) {
+        this( "WallyWorld", authenticator );
+    }
+
+    public BasicAuthHandler( String realm, BasicAuthAuthenticator authenticator ) {
         this.realm = realm;
-        this.token = createToken( user, password );
+        this.authenticator = authenticator;
     }
 
     @Override
@@ -32,27 +40,28 @@ public final class BasicAuthHandler implements Handler {
 
         Optional<String> authorizationOptional = ctx.header( HttpHeaders.AUTHORIZATION );
         if ( authorizationOptional.isPresent() ) {
-            String authorization = authorizationOptional.get();
 
-            if ( authorization.equals( token ) ) {
-                ctx.next();
-            } else {
-                String decoded = new String( BaseEncoding.base64().decode( token ), StandardCharsets.US_ASCII );
-                logger.debug( "Wrong user-ID or password: {}", decoded );
-                renderFailure( ctx );
-            }
+            String authorization = authorizationOptional.get();
+            List<String> parts = authorizationSplitter.splitToList( authorization );
+            checkState( parts.get( 0 ).equals( "Basic" ), "Not Basic authentication." );
+
+            String decoded = new String( BaseEncoding.base64().decode( parts.get( 1 ) ), StandardCharsets.US_ASCII );
+            List<String> userPassword = userPasswordSplitter.splitToList( decoded );
+            String user = userPassword.get( 0 );
+            String password = userPassword.get( 1 );
+
+            authenticator.authenticate( user, password ).then( success -> {
+                if ( success ) {
+                    ctx.next();
+                } else {
+                    logger.debug( "Wrong user or password. User: {}", user );
+                    renderFailure( ctx );
+                }
+            } );
 
         } else {
             renderFailure( ctx );
         }
-    }
-
-    private String createToken( String user, String password ) {
-        String userId = user.replaceAll( ":", "" );
-        String userPass = userId + ":" + password;
-        String token = "Basic " + BaseEncoding.base64().encode( userPass.getBytes( StandardCharsets.US_ASCII ) );
-        logger.debug( "Token: {}", token );
-        return token;
     }
 
     private void renderFailure( Context ctx ) {
