@@ -14,6 +14,12 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Basic authentication handler.
+ * If the Authorization header value is accepted by {@link BasicAuthAuthenticator},
+ * the context is delegated to the next handlers calling {@link Context#next()}.
+ * If rejected, client error with 401 status code is rendered.
+ */
 public final class BasicAuthHandler implements Handler {
 
     private static final Logger logger = LoggerFactory.getLogger( BasicAuthHandler.class );

@@ -1,5 +1,6 @@
 package rip.deadcode.ratpack.basicauth;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import ratpack.exec.ExecResult;
 import ratpack.test.exec.ExecHarness;
@@ -12,17 +13,7 @@ class StaticAuthenticatorTest {
     void testSuccess() throws Exception {
 
         ExecResult result = ExecHarness.yieldSingle( execution -> {
-            return new StaticAuthenticator( "user", "password" ).authenticate( "user", "password" );
-        } );
-
-        assertThat( result.getValue() ).isEqualTo( Boolean.TRUE );
-    }
-
-    @Test
-    void testUserContainingColonIsReplaced() throws Exception {
-
-        ExecResult result = ExecHarness.yieldSingle( execution -> {
-            return new StaticAuthenticator( "us:er", "password" ).authenticate( "user", "password" );
+            return new StaticAuthenticator( ImmutableMap.of( "user", "password" ) ).authenticate( "user", "password" );
         } );
 
         assertThat( result.getValue() ).isEqualTo( Boolean.TRUE );
@@ -32,7 +23,8 @@ class StaticAuthenticatorTest {
     void testWrongUser() throws Exception {
 
         ExecResult result = ExecHarness.yieldSingle( execution -> {
-            return new StaticAuthenticator( "user", "password" ).authenticate( "wrong user", "password" );
+            return new StaticAuthenticator( ImmutableMap.of( "user", "password" ) )
+                    .authenticate( "wrong user", "password" );
         } );
 
         assertThat( result.getValue() ).isEqualTo( Boolean.FALSE );
@@ -42,7 +34,8 @@ class StaticAuthenticatorTest {
     void testWrongPassword() throws Exception {
 
         ExecResult result = ExecHarness.yieldSingle( execution -> {
-            return new StaticAuthenticator( "user", "password" ).authenticate( "user", "wrong password" );
+            return new StaticAuthenticator( ImmutableMap.of( "user", "password" ) )
+                    .authenticate( "user", "wrong password" );
         } );
 
         assertThat( result.getValue() ).isEqualTo( Boolean.FALSE );
