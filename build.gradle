@@ -7,8 +7,8 @@ buildscript {
     }
 }
 
-group 'rip.deadcode'
-version '0.1-SNAPSHOT'
+group = 'rip.deadcode'
+version = '0.1'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -78,7 +78,7 @@ bintray {
     key = project.hasProperty('BINTRAY_KEY') ? BINTRAY_KEY : ''
     pkg {
         repo = 'test'
-        name = 'asashimo'
+        name = 'ratpack-basicauth'
         licenses = ['MIT']
         vcsUrl = 'https://github.com/minebreaker-tf/ratpack-basicauth.git'
     }
