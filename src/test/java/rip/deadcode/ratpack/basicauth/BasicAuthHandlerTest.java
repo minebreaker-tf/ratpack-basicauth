@@ -60,6 +60,21 @@ class BasicAuthHandlerTest {
     }
 
     @Test
+    void testAuthSuccessWithEmptyPassword() throws Exception {
+
+        BasicAuthAuthenticator auth = mock( BasicAuthAuthenticator.class );
+        when( auth.authenticate( "user", "" ) ).thenReturn( Promise.value( Boolean.TRUE ) );
+
+        HandlingResult result = RequestFixture.handle(
+                new BasicAuthHandler( auth ), action -> {
+                    action.header( HttpHeaders.AUTHORIZATION, createToken( "user", "" ) );
+                } );
+
+        assertWwwAuthHeaderIsAdded( result );
+        assertThat( result.isCalledNext() ).isTrue();
+    }
+
+    @Test
     void testWithoutHeader() throws Exception {
 
         BasicAuthAuthenticator auth = mock( BasicAuthAuthenticator.class );
