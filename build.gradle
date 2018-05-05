@@ -27,7 +27,7 @@ dependencies {
     compile(
             'io.ratpack:ratpack-core:1.5.4',
 
-            'com.google.guava:guava:24.1-jre',
+            'com.google.guava:guava:25.0-jre',
             'com.google.code.findbugs:jsr305:3.0.2',
             'org.slf4j:slf4j-api:1.7.25',
     )
@@ -35,9 +35,9 @@ dependencies {
             'io.ratpack:ratpack-test:1.5.4',
 
             'org.junit.jupiter:junit-jupiter-api:5.1.0',
-            'com.google.truth:truth:0.39',
-            'com.google.truth.extensions:truth-java8-extension:0.39',
-            'org.mockito:mockito-core:2.18.0',
+            'com.google.truth:truth:0.40',
+            'com.google.truth.extensions:truth-java8-extension:0.40',
+            'org.mockito:mockito-core:2.18.3',
 
             'org.slf4j:slf4j-api:1.7.25',
             'org.slf4j:jul-to-slf4j:1.7.25', // Guava uses java.util.logging
